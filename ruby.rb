@@ -8,7 +8,7 @@ while choose != 4 do
 		album_name=gets.chomp
 		names.push(album_name.capitalize)
 		puts "Album #{album_name} was added to you collection"
-	elsif choose == 2
+	elsif choose == 2#asddda
 		puts "Which album do you want to delete?"
 		album_del= gets.chomp
 		if names.include?(album_del)
