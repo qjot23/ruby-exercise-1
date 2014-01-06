@@ -1,7 +1,8 @@
 names = Array.new
+album_songs=Hash.new{|hash, key| hash[key]=[]}
 choose=0
 loop do
-	puts "What do you want to do?\n1. Add album\n2. Remove Album\n3. Show Album\n4. Quit"
+	puts "What do you want to do?\n1. Add album\n6. Add songs to album\n2. Remove Album\n3. Show Album\n4. Quit\n5. Add Artist\n6. Add Album to Artist"
 	choose = gets.to_i
 	if choose == 1
 		puts "What is the Album name?"
@@ -12,6 +13,13 @@ loop do
 		else
 			puts "Choose another name"
 		end
+	elsif choose ==6
+		puts "What is the album name you want to add songs to?"
+		al_name=gets.chomp
+		puts "What is the song title?"
+		song=gets.chomp
+		album_songs[al_name]<<song
+		puts "You have added #{song} to #{al_name} album"
 	elsif choose == 2
 		puts "Which album do you want to delete?"
 		album_del= gets.chomp
@@ -24,8 +32,17 @@ loop do
 	elsif choose == 3
 		puts "Your albums:"
 		names.each {|i| puts i}
+		puts"---------------------------------"
+		puts"Albums with songs"
+		album_songs.each_pair do |key, value|
+			puts key
+			album_songs[key].each do |i|
+				puts i
+			end
+		end
 	else
-		puts "Choose between 1-4"
 		break if choose==4
+		puts "Choose between 1-4"
+		
 	end
 end
