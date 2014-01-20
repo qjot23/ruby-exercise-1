@@ -1,18 +1,45 @@
 def add_song(hash, album)
-puts "How many songs would you like to add?"
-			number = gets.chomp.to_i
-			number.times do
-				puts "What is the song title?"
-				song=gets.chomp
+	puts "How many songs would you like to add?"
+	number = gets.chomp.to_i
+	i=0
+	while i < number 
+		puts "What is the song title?"
+		song = gets.chomp
+			unless hash[album.capitalize].include?(song)
 				hash[album.capitalize]<<song
+				i+=1
+			else
+				puts "This album contains: #{song}. Choose another name"
 			end
-			puts "You have added #{number} songs to #{album} album"
+	end
+		puts "You have added #{number} songs to #{album} album"
 end
 #***************************************************************************************
-album_songs=Hash.new{|hash, key| hash[key]=[]}
+def add_album(hash, artist)
+	puts "What is the album name?"
+	albname = gets.chomp
+	unless hash[artist.capitalize].has_key?(albname.capitalize) 
+		hash[artist.capitalize][albname.capitalize]
+		puts "Album added"
+	else
+		puts "#{artist.capitalize} already has #{albname.capitalize} album"
+	end
+	
+end
+#***************************************************************************************
 artists = Hash.new{|hash2, key2| hash2[key2]=Hash.new{|hash, key| hash[key]=[]}}
 loop do
-puts "\n\n\nWhat do you want to do?\n1. Add artist\n2. Add album\n3. Add album to artist\n4. Add songs to album\n** Remove\n\s\s51. Remove album\n\s\s52. Remove songs from album\n\s\s53. Remove artists\n6. Show Album\n7. Show Artist with albums and songs\n4. Quit"
+  puts "\n\n\nWhat do you want to do?"
+  puts "1. Add artist or album"
+  puts "2. Add album to artist"
+  puts "3. Add songs to album"
+  puts "** Remove"
+  puts "\s\s41. Remove album from artist"
+  puts "\s\s42. Remove songs from album"
+  puts "\s\s43. Remove artists"
+  puts "5. Show Artist with albums and songs"
+  puts "6. Quit"
+
 	choose = gets.to_i
 	if choose == 1
 		puts "What is the artist name?"
@@ -20,74 +47,81 @@ puts "\n\n\nWhat do you want to do?\n1. Add artist\n2. Add album\n3. Add album t
 		if artists.has_key?(art_name.capitalize) 
 			puts "This artist is on your collection already. Would you like to add him an album?(y - yes, n - no)"
 			if answear = gets.chomp == "y" 
-				puts "What is the album name?"
-				albname = gets.chomp
-				artists[art_name.capitalize][albname.capitalize]=album_songs[albname.capitalize]
-				puts artists
+				add_album(artists, art_name.capitalize)
 			end
 		else
 			artists[art_name.capitalize]
 			puts "Artist #{art_name} was dded to your collection"
-			puts artists
+			puts "Would you like to add an album to this artist? (y - yes, n - no)"
+			add_album(artists, art_name.capitalize) if answear = gets.chomp == "y"
 		end	
-
+	
 	elsif choose == 2
-		puts "What is the Album name?"
-		album_name=gets.chomp
-		if  album_songs.has_key?(album_name.capitalize)
-			puts "Choose another name"
+		puts "What is the artist name?"
+		artiname = gets.chomp
+		if artists.has_key?(artiname.capitalize)
+			puts "What is the album name?"
+			albname = gets.chomp
+			unless artists[artiname.capitalize].has_key?(albname.capitalize) 
+				artists[artiname.capitalize][albname.capitalize] 
+			else 
+				puts "#{artiname.capitalize} already has #{albname.capitalize} album"
+			end
 		else
-			album_songs[album_name.capitalize]
-			puts "Album #{album_name} was added to you collection"
-			puts "Would you like to add songs to this album? (y - yes, n - no)"
-			if answear = gets.chomp == "y" then add_song(album_songs, album_name) end
+			puts "You have to add artist first"
 		end
 
 	elsif choose == 3
 		puts "What is the artist name?"
 		artiname = gets.chomp
 		if artists.has_key?(artiname.capitalize)
-			puts "What is the album name?"
-			albname = gets.chomp
-			artists[artiname.capitalize][albname.capitalize]=album_songs[albname.capitalize]
-			puts artists	
+			puts "What is the album name you want to add songs to?"
+			al_name=gets.chomp
+			if  artists[artiname.capitalize].has_key?(al_name.capitalize)
+				add_song(artists[artiname.capitalize], al_name)
+			else
+				puts "Can't find this album"
+			end
 		else
 			puts "You have to add artist first"
 		end
-
-	elsif choose == 4
-		puts "What is the album name you want to add songs to?"
-		al_name=gets.chomp
-		if  album_songs.has_key?(al_name.capitalize)
-			add_song(album_songs, al_name)
+				
+	elsif choose == 41
+		puts "What is the artist name?"
+		artiname = gets.chomp
+		if artists.has_key?(artiname.capitalize) 
+			puts "Which album do you want to delete?"
+				album_del= gets.chomp
+					if artists[artiname.capitalize].delete(album_del.capitalize) 
+						puts "Album #{album_del} deleted"
+					else
+						puts "Can't find this album"
+					end
 		else
-			puts "Can't find this album"
+			puts "Wrong artist name"
 		end
 
-	elsif choose == 51
-		puts "Which album do you want to delete?"
-		album_del= gets.chomp
-		if album_songs.delete(album_del.capitalize) 
-			artists.each{|key, value| value.delete_if{|k,v| k==album_del.capitalize}}
-			puts artists
-			puts "Album #{album_del} deleted"
+	elsif choose == 42
+		puts "What is the artist name?"
+		artiname = gets.chomp
+		if artists.has_key?(artiname.capitalize) 
+			puts "Which album you want to remove songs from?"
+			rem_song = gets.chomp
+				if artists[artiname.capitalize].has_key?(rem_song.capitalize)
+					puts "Album: #{rem_song.capitalize}"
+					artists[artiname.capitalize][rem_song.capitalize].each_with_index {|value, index| puts "\s\s #{index} - #{value}"}
+					puts "Which song do you want to delete? (Put index. For multiple songs put: 0,1... )"
+					song_del = gets.chomp.split(',')
+					song_del.map!{|i| i.to_i}.sort!{|a, b| b<=>a}.each{|i| artists[artiname.capitalize][rem_song.capitalize].delete_at(i)}
+					puts "Deleted"
+				else	
+					puts "Can't find this album"
+				end
 		else
-			puts "Can't find this album"
+			puts "Wrong artist name"
 		end
-	elsif choose == 52
-		puts "From which album you want to remove songs from?"
-		rem_song = gets.chomp
-		if album_songs.has_key?(rem_song.capitalize)
-			puts "Album: #{rem_song.capitalize}"
-			album_songs[rem_song.capitalize].each_with_index {|value, index| puts "\s\s #{index} - #{value}"}
-			puts "Which song do you want to delete? (Put index. For multiple songs put: 0,1... )"
-			song_del = gets.chomp.split(',')
-			song_del.map!{|i| i.to_i}.sort!{|a, b| b<=>a}.each{|i| album_songs[rem_song.capitalize].delete_at(i)}
-			puts "Deleted"
-		else	
-			puts "Can't find this album"
-		end
-	elsif choose == 53
+
+	elsif choose == 43
 		puts "Which artist do you want to remove?"
 		ana=gets.chomp
 		if artists.has_key?(ana.capitalize) 
@@ -95,23 +129,8 @@ puts "\n\n\nWhat do you want to do?\n1. Add artist\n2. Add album\n3. Add album t
 		else
 			puts "You don't have this artist in your collection "
 		end
-		
-	elsif choose == 6
-		if album_songs.empty?
-			puts "Can't find this album"
-		else
-			puts "Your albums:"
-			album_songs.each_key {|key| puts key}
-			puts"---------------------------------"
-			puts"Albums with songs"
-			album_songs.each_pair do |key, value|
-				puts "Album name: #{key}"
-					album_songs[key].each{|i| puts "\tSong name: #{i}"}
-					#puts "\tSong name: #{i}"
-				#end
-			end
-		end
-	elsif choose == 7
+			
+	elsif choose == 5
 		if artists.empty?
 			puts "Your collection is empty"
 		else	
@@ -128,7 +147,7 @@ puts "\n\n\nWhat do you want to do?\n1. Add artist\n2. Add album\n3. Add album t
 		end
 				
 	else
-		break if choose == 8
+		break if choose == 6
 		puts "Choose between 1-8"
 		
 	end
