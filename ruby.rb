@@ -125,6 +125,7 @@ loop do
 		puts "Which artist do you want to remove?"
 		ana=gets.chomp
 		if artists.has_key?(ana.capitalize) 
+			artists.delete(ana.capitalized)
 			puts "Artist #{ana} removed."
 		else
 			puts "You don't have this artist in your collection "
