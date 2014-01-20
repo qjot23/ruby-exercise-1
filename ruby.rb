@@ -14,9 +14,9 @@ def add_song(hash, album)
 	end
 		puts "You have added #{number} songs to #{album} album"
 end
-#***************************************************************************************
+#*****************************************************************************************
 def add_album(hash, artist)
-	puts "What is the album name?"
+	puts "What is the album name, hęeeeeeeeeeeeeeeeeeeeeeeee?"
 	albname = gets.chomp
 	unless hash[artist.capitalize].has_key?(albname.capitalize) 
 		hash[artist.capitalize][albname.capitalize]
@@ -26,7 +26,7 @@ def add_album(hash, artist)
 	end
 	
 end
-#***************************************************************************************
+#*****************************************************************************************
 artists = Hash.new{|hash2, key2| hash2[key2]=Hash.new{|hash, key| hash[key]=[]}}
 loop do
   puts "\n\n\nWhat do you want to do?"
