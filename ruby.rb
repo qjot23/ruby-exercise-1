@@ -192,21 +192,14 @@ class Application
 		else
 			puts "#{artist.capitalize} already has #{albname.capitalize} album"
 		end
-		
 	end
 #*****************************************************************************************
 	def find_song
-		songs=[]
-		@artists.each_value{|value| value.each{|k,v| v.each{|value| songs<<value}}}
-		if songs.empty?
-			puts "You don't have any songs."
-		else
-			puts "What is the song title?"
-			tytul = gets.chomp
-			reg = Regexp.new tytul
-			puts "Songs found:" 
-			songs.each {|song| puts song if song.match reg}
-		end	
+		puts "What is the song title?"
+		tytul = gets.chomp
+		reg = Regexp.new tytul
+		puts "Songs found:" 
+		@artists.each{|key, value| value.each{|k,v| v.each{|value| puts "Title: #{value} Album: #{k} Artist: #{key}" if value.match reg}}}
 	end
 end
 aplication = Application.new
