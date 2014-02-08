@@ -1,8 +1,12 @@
+require 'yaml'
 class Application
 
 	def initialize 
-		@artists= Hash.new{|hash2, key2| hash2[key2]=Hash.new{|hash, key| hash[key]=[]}}
-		interface
+		if File.zero?('data.yml')
+			@artists= Hash.new{|hash2, key2| hash2[key2]=Hash.new{|hash, key| hash[key]=[]}} 
+		else
+			@artists=YAML.load_file('data.yml')
+		end
 	end
 
 	def interface
@@ -23,35 +27,28 @@ class Application
 		case choice
 		  when 1
 		  	add_artist_or_album
-		  	interface
 		  when 2
 		  	add_album_to_artists
-		  	interface
 		  when 3
 		  	add_songs_to_album
-		  	interface
 		  when 41
 		  	remove_album_from_artist
-		  	interface
 		  when 42
 		  	remove_songs_from_album
-		  	interface
 		  when 43
 		  	remove_artists
-		  	interface
 		  when 5
 		  	show_collection
-		  	interface
 		  when 6
 		  	find_song
-		  	interface
 		  when 7
 		  	quit
 		  else
 		  	puts "Choose between 1-7"
-		  	interface
 		end
+	interface
 	end
+
 
 
 	private
@@ -62,7 +59,7 @@ class Application
 			if @artists.has_key?(art_name.capitalize) 
 				puts " This artist is already in you collection"
 			else
-				@artists[art_name.capitalize]
+				@artists[art_name.capitalize]={}
 				puts "Artist #{art_name} was added to your collection"
 			end	
 			puts "Would you like to add an album to his artist?(y - yes, n - no)"
@@ -76,7 +73,7 @@ class Application
 				puts "What is the album name?"
 				albname = gets.chomp
 				unless @artists[artiname.capitalize].has_key?(albname.capitalize) 
-					@artists[artiname.capitalize][albname.capitalize] 
+					@artists[artiname.capitalize][albname.capitalize]=[] 
 				    puts "#{albname.capitalize} album added"
 				else 
 					puts "#{artiname.capitalize} already has #{albname.capitalize} album"
@@ -162,6 +159,7 @@ class Application
 	end
 #*******************************************************************************************
 	def quit
+		to_yaml
 		abort("Bye, Bye")
 	end
 
@@ -187,7 +185,7 @@ class Application
 		puts "What is the album name, he?"
 		albname = gets.chomp
 		unless @artists[artist.capitalize].has_key?(albname.capitalize) 
-			@artists[artist.capitalize][albname.capitalize]
+			@artists[artist.capitalize][albname.capitalize]=[]
 			puts "Album added"
 		else
 			puts "#{artist.capitalize} already has #{albname.capitalize} album"
@@ -196,10 +194,13 @@ class Application
 #*****************************************************************************************
 	def find_song
 		puts "What is the song title?"
-		tytul = gets.chomp
-		reg = Regexp.new tytul
+		reg = Regexp.new gets.chomp
 		puts "Songs found:" 
-		@artists.each{|key, value| value.each{|k,v| v.each{|value| puts "Title: #{value} Album: #{k} Artist: #{key}" if value.match reg}}}
+		@artists.each{|artists, albums| albums.each{|album,songs| songs.each{|song| puts "Title: #{song} Album: #{album} Artist: #{artists}" if song.match reg}}}
+	end
+#*****************************************************************************************
+	def to_yaml
+		f=File.open("data.yml", "w"){|f| f.write(YAML::dump(@artists))}
 	end
 end
 aplication = Application.new
