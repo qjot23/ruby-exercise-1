@@ -1,15 +1,24 @@
+APP_ROOT = File.dirname(__FILE__)
+
 require 'yaml'
+require "#{APP_ROOT}/song"
 class Application
 
 	def initialize 
-		if File.zero?('data.yml')
-			@artists= Hash.new{|hash2, key2| hash2[key2]=Hash.new{|hash, key| hash[key]=[]}} 
+		if File.exists?('data.yml')
+			if File.zero?('data.yml')
+				@artists= Hash.new{|hash2, key2| hash2[key2]=Hash.new{|hash, key| hash[key]=[]}} 
+			else
+				@artists=YAML.load_file('data.yml')	
+			end
 		else
-			@artists=YAML.load_file('data.yml')
+			File.open('data.yml', 'w')
+			@artists= Hash.new{|hash2, key2| hash2[key2]=Hash.new{|hash, key| hash[key]=[]}} 
 		end
 	end
 
 	def interface
+
 		puts "\n\n\nWhat do you want to do?"
 		puts "1. Add artist or album"
 		puts "2. Add album to artist"
@@ -119,7 +128,7 @@ class Application
 				rem_song = gets.chomp
 					if @artists[artiname.capitalize].has_key?(rem_song.capitalize)
 						puts "Album: #{rem_song.capitalize}"
-						@artists[artiname.capitalize][rem_song.capitalize].each_with_index {|value, index| puts "\s\s #{index} - #{value}"}
+						@artists[artiname.capitalize][rem_song.capitalize].each_with_index {|value, index| puts "\s\s #{index} - #{value.name}"}
 						puts "Which song do you want to delete? (Put index. For multiple songs put: 0,1... )"
 						song_del = gets.chomp.split(',')
 						song_del.map!{|i| i.to_i}.sort!{|a, b| b<=>a}.each{|i| @artists[artiname.capitalize][rem_song.capitalize].delete_at(i)}
@@ -152,10 +161,11 @@ class Application
 					puts "#{artists}"
 					albums.each do |album,songs|
 						puts "\t#{album}"
-						songs.each {|song| puts "\t\t#{song}"}
+						songs.each {|song| puts "\t\t#{song.name}"}
 					end
 				end
 			end
+
 	end
 #*******************************************************************************************
 	def quit
@@ -169,13 +179,15 @@ class Application
 		number = gets.chomp.to_i
 		i=0
 		while i < number 
+			song = Song.new
 			puts "What is the song title?"
-			song = gets.chomp
-			unless hash[album.capitalize].include?(song)
+			song.name = gets.chomp
+			unless hash[album.capitalize].find {|title| title.name == song.name }
 				hash[album.capitalize]<<song
+				puts hash[album.capitalize].inspect
 				i+=1
 			else
-				puts "This album contains: #{song}. Choose another name"
+				puts "This album contains: #{song.name}. Choose another name"
 			end
 		end
 			puts "You have added #{number} songs to #{album} album"
@@ -196,7 +208,7 @@ class Application
 		puts "What is the song title?"
 		reg = Regexp.new gets.chomp
 		puts "Songs found:" 
-		@artists.each{|artists, albums| albums.each{|album,songs| songs.each{|song| puts "Title: #{song} Album: #{album} Artist: #{artists}" if song.match reg}}}
+		@artists.each{|artists, albums| albums.each{|album,songs| songs.each{|song| puts "Title: #{song.name} Album: #{album} Artist: #{artists}" if song.name.match reg}}}
 	end
 #*****************************************************************************************
 	def to_yaml
