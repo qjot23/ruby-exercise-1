@@ -2,18 +2,20 @@ APP_ROOT = File.dirname(__FILE__)
 
 require 'yaml'
 require "#{APP_ROOT}/song"
+require "#{APP_ROOT}/album"
+
 class Application
 
 	def initialize 
 		if File.exists?('data.yml')
 			if File.zero?('data.yml')
-				@artists= Hash.new{|hash2, key2| hash2[key2]=Hash.new{|hash, key| hash[key]=[]}} 
+				@artists = Hash.new{|hash, key| hash[key]=[]}
 			else
 				@artists=YAML.load_file('data.yml')	
 			end
 		else
 			File.open('data.yml', 'w')
-			@artists= Hash.new{|hash2, key2| hash2[key2]=Hash.new{|hash, key| hash[key]=[]}} 
+			@artists = Hash.new{|hash, key| hash[key]=[]}
 		end
 	end
 
@@ -68,7 +70,7 @@ class Application
 			if @artists.has_key?(art_name.capitalize) 
 				puts " This artist is already in you collection"
 			else
-				@artists[art_name.capitalize]={}
+				@artists[art_name.capitalize]=[]
 				puts "Artist #{art_name} was added to your collection"
 			end	
 			puts "Would you like to add an album to his artist?(y - yes, n - no)"
@@ -98,8 +100,8 @@ class Application
 			if @artists.has_key?(artiname.capitalize)
 				puts "What is the album name you want to add songs to?"
 				al_name=gets.chomp
-				if  @artists[artiname.capitalize].has_key?(al_name.capitalize)
-					add_song(@artists[artiname.capitalize], al_name)
+				if album = @artists[artiname.capitalize].find {|album_name| album_name.name == al_name.capitalize}
+					album.add_song#(@artists[artiname.capitalize], al_name)
 				else
 					puts "Can't find this album"
 				end
@@ -159,9 +161,9 @@ class Application
 				puts "Your collection. Artists with albums and songs"
 				@artists.each do |artists, albums| 
 					puts "#{artists}"
-					albums.each do |album,songs|
-						puts "\t#{album}"
-						songs.each {|song| puts "\t\t#{song.name}"}
+					albums.each do |album|
+						puts "\t#{album.name}"
+						album.songs.each {|song| puts "\t\t#{song.name}"}
 					end
 				end
 			end
@@ -173,7 +175,8 @@ class Application
 		abort("Bye, Bye")
 	end
 
-#*****************************************************************************************
+#***************************************************************************************** 
+	
 	def add_song(hash, album)
 		puts "How many songs would you like to add?"
 		number = gets.chomp.to_i
@@ -182,9 +185,9 @@ class Application
 			song = Song.new
 			puts "What is the song title?"
 			song.name = gets.chomp
-			unless hash[album.capitalize].find {|title| title.name == song.name }
-				hash[album.capitalize]<<song
-				puts hash[album.capitalize].inspect
+			unless album.songs.find {|title| title.name == song.name }
+				album.songs<<song
+				puts album.songs.inspect
 				i+=1
 			else
 				puts "This album contains: #{song.name}. Choose another name"
@@ -192,16 +195,19 @@ class Application
 		end
 			puts "You have added #{number} songs to #{album} album"
 	end
+
 #*****************************************************************************************
 	def add_album(artist)
 		puts "What is the album name, he?"
-		albname = gets.chomp
-		unless @artists[artist.capitalize].has_key?(albname.capitalize) 
-			@artists[artist.capitalize][albname.capitalize]=[]
+		album = Album.new(gets.chomp.capitalize)
+		unless @artists[artist.capitalize].find {|alname| alname.name == album.name.capitalize}
+			@artists[artist.capitalize]<<album
 			puts "Album added"
+			puts @artists
 		else
 			puts "#{artist.capitalize} already has #{albname.capitalize} album"
 		end
+
 	end
 #*****************************************************************************************
 	def find_song
