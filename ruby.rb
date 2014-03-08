@@ -176,27 +176,7 @@ class Application
 	end
 
 #***************************************************************************************** 
-	
-	def add_song(hash, album)
-		puts "How many songs would you like to add?"
-		number = gets.chomp.to_i
-		i=0
-		while i < number 
-			song = Song.new
-			puts "What is the song title?"
-			song.name = gets.chomp
-			unless album.songs.find {|title| title.name == song.name }
-				album.songs<<song
-				puts album.songs.inspect
-				i+=1
-			else
-				puts "This album contains: #{song.name}. Choose another name"
-			end
-		end
-			puts "You have added #{number} songs to #{album} album"
-	end
 
-#*****************************************************************************************
 	def add_album(artist)
 		puts "What is the album name, he?"
 		album = Album.new(gets.chomp.capitalize)
