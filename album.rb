@@ -28,4 +28,12 @@ class Album
 		end
 			puts "You have added #{number} songs to #{self.name} album"
 	end
+
+	def find_song(reg)
+		songs.each {|song| puts song.name if song.name.match reg} 		
+	end
+
+	def remove_song(index)
+		songs.delete_at(index)
+	end
 end

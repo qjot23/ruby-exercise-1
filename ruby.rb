@@ -5,6 +5,7 @@ require "#{APP_ROOT}/song"
 require "#{APP_ROOT}/album"
 
 class Application
+	
 
 	def initialize 
 		if File.exists?('data.yml')
@@ -17,6 +18,7 @@ class Application
 			File.open('data.yml', 'w')
 			@artists = Hash.new{|hash, key| hash[key]=[]}
 		end
+		puts @artists
 	end
 
 	def interface
@@ -51,7 +53,7 @@ class Application
 		  when 5
 		  	show_collection
 		  when 6
-		  	find_song
+		  	find
 		  when 7
 		  	quit
 		  else
@@ -81,14 +83,15 @@ class Application
 		puts "What is the artist name?"
 			artiname = gets.chomp
 			if @artists.has_key?(artiname.capitalize)
-				puts "What is the album name?"
-				albname = gets.chomp
-				unless @artists[artiname.capitalize].has_key?(albname.capitalize) 
-					@artists[artiname.capitalize][albname.capitalize]=[] 
-				    puts "#{albname.capitalize} album added"
-				else 
-					puts "#{artiname.capitalize} already has #{albname.capitalize} album"
-				end
+				add_album(artiname.capitalize)
+				
+				#albname = gets.chomp
+				#unless @artists[artiname.capitalize].find {|albumname| albumname==albname} 
+					#add_album(artiname.capitalize)
+				    #puts "#{albname.capitalize} album added"
+				#else 
+					#puts "#{artiname.capitalize} already has #{albname.capitalize} album"
+				#end
 			else
 				puts "You have to add artist first"
 			end
@@ -128,12 +131,12 @@ class Application
 			if @artists.has_key?(artiname.capitalize) 
 				puts "Which album you want to remove songs from?"
 				rem_song = gets.chomp
-					if @artists[artiname.capitalize].has_key?(rem_song.capitalize)
-						puts "Album: #{rem_song.capitalize}"
-						@artists[artiname.capitalize][rem_song.capitalize].each_with_index {|value, index| puts "\s\s #{index} - #{value.name}"}
+					if album = @artists[artiname.capitalize].find {|alname| alname.name == rem_song.capitalize}
+						puts "Album: #{album.name}"
+						album.songs.each_with_index {|value, index| puts "\s\s #{index} - #{value.name}"}
 						puts "Which song do you want to delete? (Put index. For multiple songs put: 0,1... )"
 						song_del = gets.chomp.split(',')
-						song_del.map!{|i| i.to_i}.sort!{|a, b| b<=>a}.each{|i| @artists[artiname.capitalize][rem_song.capitalize].delete_at(i)}
+						song_del.map!{|i| i.to_i}.sort!{|a, b| b<=>a}.each{|i| album.remove_song(i)} 
 						puts "Deleted"
 					else	
 						puts "Can't find this album"
@@ -190,11 +193,15 @@ class Application
 
 	end
 #*****************************************************************************************
-	def find_song
+	def find
 		puts "What is the song title?"
-		reg = Regexp.new gets.chomp
-		puts "Songs found:" 
-		@artists.each{|artists, albums| albums.each{|album,songs| songs.each{|song| puts "Title: #{song.name} Album: #{album} Artist: #{artists}" if song.name.match reg}}}
+    	reg = Regexp.new(Regexp.escape(gets.chomp), "i") #case insensitive
+			puts "Songs found:"
+			@artists.each do |artist, albums|  
+				albums.each do |album| 
+					album.find_song(reg)				
+				end
+			end
 	end
 #*****************************************************************************************
 	def to_yaml
