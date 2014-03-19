@@ -20,7 +20,6 @@ class Album
 			song.name = gets.chomp.capitalize
 			unless songs.find {|title| title.name == song.name}
 				songs<<song
-				puts songs.inspect
 				i+=1
 			else
 				puts "This album contains: #{song.name}. Choose another name"
